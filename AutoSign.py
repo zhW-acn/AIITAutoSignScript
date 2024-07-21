@@ -2,7 +2,6 @@
 
 import json
 import time
-from datetime import datetime
 import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
 
@@ -11,8 +10,8 @@ username = '320202010337'
 password = 'Wzhwzhwzh@123'
 retryTime = 1 * 60 * 60
 reLoginTime = 1 * 60
-signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'
-loginURL = 'https://in.aiit.edu.cn/uaac-server/login'
+signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'  # 打卡post请求
+loginURL = 'https://in.aiit.edu.cn/uaac-server/login'  # 登录
 
 
 def main():
@@ -22,9 +21,11 @@ def main():
     try:
         while True:
             scheduler.start()
-            print("当前时间：", datetime.now())
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
+        print('打卡失败，' + retryTime.__str__() + '秒后重试')
+        time.sleep(retryTime)
+        scheduler.start()
 
 
 # 登录
@@ -61,29 +62,26 @@ def get_ranking(json_str):
 
 
 def doCore():
+    session = None
     try:
-        core()
+        while True:
+            try:
+                session = login()
+            except requests.exceptions.SSLError as e:
+                print("关闭代理")
+            if session is None:
+                print("登录失败，等待重试")
+                time.sleep(reLoginTime)
+                continue
+            break
+        core(session)
     except ValueError:
         time.sleep(retryTime)
         core()
 
 
 # 打卡核心方法
-def core():
-    # 获取登录会话
-    session = None
-
-    while True:
-        try:
-            session = login()
-        except requests.exceptions.SSLError as e:
-            print("关闭代理")
-        if session is None:
-            print("登录失败，等待重试")
-            time.sleep(reLoginTime)
-            continue
-        break
-
+def core(session):
     # 设置要发送的表单数据
     data = {
         'access_token': '76c8bb52-f91b-47d1-bb2b-7bb1be0bc71d',
@@ -100,7 +98,7 @@ def core():
         #               'Chrome/126.0.0.0 Safari/537.36'
     }
 
-    response = requests.post(signURL, headers=headers, data=data, verify=False)
+    response = session.post(signURL, headers=headers, data=data, verify=False)
 
     if response.status_code == 200:
         print("打卡成功，第" + get_ranking(response.text) + "名")

@@ -3,6 +3,8 @@ import time
 
 import requests
 
+from AutoSign import login
+
 username = '320202010337'
 password = 'Wzhwzhwzh@123'
 retryTime = 1 * 60 * 60
@@ -10,32 +12,6 @@ reLoginTime = 1 * 60
 signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'
 loginURL = 'https://in.aiit.edu.cn/uaac-server/login'
 reportURL = 'http://ims.aiit.edu.cn/weeklyMobile/save.do'
-
-
-# 登录
-def login():
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                      'Chrome/126.0.0.0 Safari/537.36'
-    }
-
-    login_data = {
-        'username': username,
-        'password': password
-    }
-
-    login_session = requests.Session()
-
-    response = login_session.post(loginURL, headers=headers, data=login_data)
-
-    if response.status_code == 200:
-        print("登录成功")
-        return login_session
-    else:
-        print(f"登录失败，状态码: {response.status_code}")
-        print(f"错误信息: {response.text}")
-        return None
 
 
 # 打卡核心方法
