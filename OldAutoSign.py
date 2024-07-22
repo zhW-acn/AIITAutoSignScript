@@ -1,46 +1,34 @@
-import argparse
+# 打卡
+
 import json
 import time
 import requests
 from apscheduler.schedulers.blocking import BlockingScheduler
-import logging
 
-# 配置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+# 登陆的学号、密码和重试时间
+username = ''
+password = ''
 retryTime = 1 * 60 * 60
 reLoginTime = 1 * 60
 signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'  # 打卡post请求
 loginURL = 'https://in.aiit.edu.cn/uaac-server/login'  # 登录
 
 
-def main(username, password):
-    global session
+def main():
     scheduler = BlockingScheduler()
-
+    scheduler.add_job(doCore, "cron", hour=12, minute=00)  # 每天中午12点打卡
     try:
-        while session is None:
-            session = login(username, password)
-            if session is None:
-                logger.info('登录失败，%d秒后重试', reLoginTime)
-                time.sleep(reLoginTime)
-    except requests.exceptions.SSLError:
-        logger.info('登陆失败。尝试关闭代理')
-        return
-
-    scheduler.add_job(doCore, "cron", hour=12, minute=0, args=[session, username])  # 每天中午12点打卡
-    try:
-        scheduler.start()
+        while True:
+            scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
-        logger.info('打卡失败，%d秒后重试', retryTime)
+        print('打卡失败，' + retryTime.__str__() + '秒后重试')
         time.sleep(retryTime)
         scheduler.start()
 
 
 # 登录
-def login(username, password):
+def login():
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -57,11 +45,12 @@ def login(username, password):
     response = login_session.post(loginURL, headers=headers, data=login_data)
 
     if response.status_code == 200:
-        logger.info("%s ------ 登录成功", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        print(response.text)
+        print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + "------登录成功")
         return login_session
     else:
-        logger.error("登录失败，状态码: %d", response.status_code)
-        logger.error("错误信息: %s", response.text)
+        print(f"登录失败，状态码: {response.status_code}")
+        print(f"错误信息: {response.text}")
         return None
 
 
@@ -72,16 +61,27 @@ def get_ranking(json_str):
     return str(ranking)
 
 
-def doCore(session, username):
+def doCore():
+    session = None
+    while True:
+        try:
+            session = login()
+        except requests.exceptions.SSLError:
+            print("关闭代理")
+        if session is None:
+            print('登录失败，' + reLoginTime.__str__() + '秒后重试')
+            time.sleep(reLoginTime)
+            continue
+        break
     try:
-        core(session, username)
+        core(session)
     except ValueError:
         time.sleep(retryTime)
-        core(session, username)
+        core(session)
 
 
 # 打卡核心方法
-def core(session, username):
+def core(session):
     # 设置要发送的表单数据
     data = {
         'access_token': '76c8bb52-f91b-47d1-bb2b-7bb1be0bc71d',
@@ -101,25 +101,13 @@ def core(session, username):
     response = session.post(signURL, headers=headers, data=data, verify=False)
 
     if response.status_code == 200:
-        logger.info("%s ------ 打卡成功，第%s名", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                    get_ranking(response.text))
+        print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) + "------打卡成功，第" + get_ranking(
+            response.text) + "名")
     else:
-        logger.error("打卡失败，状态码: %d", response.status_code)
-        logger.error("错误信息: %s", response.text)
+        print(f"打卡失败，状态码: {response.status_code}")
+        print(f"错误信息: {response.text}")
         raise ValueError  # 随便抛一个异常
 
 
-# 命令行参数
-def parse_args():
-    parser = argparse.ArgumentParser(description="安小信实习打卡")
-    parser.add_argument('--username', required=True, help='学号')
-    parser.add_argument('--password', required=True, help='密码')
-    return parser.parse_args()
-
-
 if __name__ == '__main__':
-    args = parse_args()
-    username = args.username
-    password = args.password
-    session = None
-    main(username, password)
+    main()
