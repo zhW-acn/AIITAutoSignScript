@@ -10,37 +10,29 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 retryTime = 1 * 60 * 60
-reLoginTime = 1 * 60
 signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'  # 打卡post请求
 loginURL = 'https://in.aiit.edu.cn/uaac-server/login'  # 登录
 
 
-def main(username, password):
-    global session
+def main():
     scheduler = BlockingScheduler()
-
-    try:
-        while session is None:
-            session = login(username, password)
-            if session is None:
-                logger.info('登录失败，%d秒后重试', reLoginTime)
-                time.sleep(reLoginTime)
-    except requests.exceptions.SSLError:
-        logger.info('登陆失败。尝试关闭代理')
+    session = login()
+    if session is None:
+        logger.info('登录失败，检查学号和密码')
         return
 
-    scheduler.add_job(doCore, "cron", hour=12, minute=0, args=[session, username])  # 每天中午12点打卡
+    scheduler.add_job(doCore, "cron", hour=hour, minute=minute, args=[session])  # 打卡任务
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         scheduler.shutdown()
         logger.info('打卡失败，%d秒后重试', retryTime)
         time.sleep(retryTime)
-        scheduler.start()
+        doCore(session)
 
 
 # 登录
-def login(username, password):
+def login():
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -54,14 +46,18 @@ def login(username, password):
 
     login_session = requests.Session()
 
-    response = login_session.post(loginURL, headers=headers, data=login_data)
-
-    if response.status_code == 200:
-        logger.info("%s ------ 登录成功", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-        return login_session
-    else:
-        logger.error("登录失败，状态码: %d", response.status_code)
-        logger.error("错误信息: %s", response.text)
+    try:
+        while True:
+            response = login_session.post(loginURL, headers=headers, data=login_data)
+            if response.status_code == 200:
+                logger.info("%s ------ 登录成功", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+                return login_session
+            else:
+                logger.error("登录失败，状态码: %d", response.status_code)
+                logger.error("错误信息: %s", response.text)
+                return None
+    except requests.exceptions.SSLError:
+        logger.info('登陆失败。尝试关闭代理')
         return None
 
 
@@ -72,16 +68,17 @@ def get_ranking(json_str):
     return str(ranking)
 
 
-def doCore(session, username):
+def doCore(session):
     try:
-        core(session, username)
+        core(session)
     except ValueError:
+        logger.info('打卡失败，%d秒后重试', retryTime)
         time.sleep(retryTime)
-        core(session, username)
+        core(session)
 
 
 # 打卡核心方法
-def core(session, username):
+def core(session):
     # 设置要发送的表单数据
     data = {
         'access_token': '76c8bb52-f91b-47d1-bb2b-7bb1be0bc71d',
@@ -112,14 +109,17 @@ def core(session, username):
 # 命令行参数
 def parse_args():
     parser = argparse.ArgumentParser(description="安小信实习打卡")
-    parser.add_argument('--username', required=True, help='学号')
-    parser.add_argument('--password', required=True, help='密码')
+    parser.add_argument('-u', required=True, help='学号')
+    parser.add_argument('-p', required=True, help='密码')
+    parser.add_argument('-hour', required=True, help='24进制小时')
+    parser.add_argument('-minute', required=True, help='分钟')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_args()
-    username = args.username
-    password = args.password
-    session = None
-    main(username, password)
+    username = args.u
+    password = args.p
+    hour = args.hour
+    minute = args.minute
+    main()

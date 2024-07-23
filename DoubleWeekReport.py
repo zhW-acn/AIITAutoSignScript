@@ -14,14 +14,14 @@ loginURL = 'https://in.aiit.edu.cn/uaac-server/login'
 reportURL = 'http://ims.aiit.edu.cn/weeklyMobile/save.do'
 
 
-# 打卡核心方法
+# 双周报核心方法
 def core():
     # 获取登录会话
     session = None
 
     while True:
         try:
-            session = login()
+            session = login('320202010337', 'Wzhwzhwzh@123')
         except requests.exceptions.SSLError as e:
             print("关闭代理")
         if session is None:
