@@ -16,3 +16,5 @@ if __name__ == '__main__':
     print(args)
     print(args.u)
     print(args.p)
+    print(args.hour)
+    print(args.minute)
