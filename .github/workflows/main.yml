@@ -25,4 +25,4 @@ jobs:
       run: pip install requests apscheduler
 
     - name: Run Python script
-      run: python test.py --username username --password password --hour hour --minute minute
+      run: python test.py -u username -p password --hour hour --minute minute
