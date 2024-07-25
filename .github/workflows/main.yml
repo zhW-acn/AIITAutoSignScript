@@ -9,20 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
-        hour: ${{ secrets.HOUR }}
-        minute: ${{ secrets.MINUTE }}
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
-    - name: Install dependencies
-      run: pip install requests apscheduler
+      - name: Install dependencies
+        run: pip install requests apscheduler
 
-    - name: Run Python script
-      run: python test.py -u username -p password -hour hour -minute minute
+      - name: Run Python script
+        run: python test.py -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -hour ${{ secrets.HOUR }} -minute ${{ secrets.MINUTE }}
