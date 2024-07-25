@@ -5,8 +5,6 @@ import requests
 
 from AutoSign import login
 
-username = '320202010337'
-password = 'Wzhwzhwzh@123'
 retryTime = 1 * 60 * 60
 reLoginTime = 1 * 60
 signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'
@@ -21,7 +19,7 @@ def core():
 
     while True:
         try:
-            session = login('320202010337', 'Wzhwzhwzh@123')
+            session = login()
         except requests.exceptions.SSLError as e:
             print("关闭代理")
         if session is None:
