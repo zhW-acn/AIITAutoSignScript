@@ -18,7 +18,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests apscheduler torch -i https://pypi.tuna.tsinghua.edu.cn/simple transformers
+        run: pip install requests apscheduler torch -i https://pypi.tuna.tsinghua.edu.cn/simple transformers tensorflow
 
       - name: Run Python script
         run: python AutoSign.py -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -hour ${{ secrets.HOUR }} -minute ${{ secrets.MINUTE }}

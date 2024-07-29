@@ -128,8 +128,6 @@ def parse_args():
 
 
 if __name__ == '__main__':
-
-
     model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14", from_tf=True)
     args = parse_args()
     username = args.u
