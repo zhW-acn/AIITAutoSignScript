@@ -18,7 +18,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests apscheduler transformers
+        run: pip install requests apscheduler transformers==3.3.1 tensorflow==2.2.0
 
       - name: Run Python script
         run: python AutoSign.py -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -hour ${{ secrets.HOUR }} -minute ${{ secrets.MINUTE }}
