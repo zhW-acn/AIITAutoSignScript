@@ -21,4 +21,4 @@ jobs:
         run: pip install requests apscheduler
 
       - name: Run Python script
-        run: python test.py -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -hour ${{ secrets.HOUR }} -minute ${{ secrets.MINUTE }}
+        run: python AutoSign.py -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -hour ${{ secrets.HOUR }} -minute ${{ secrets.MINUTE }}

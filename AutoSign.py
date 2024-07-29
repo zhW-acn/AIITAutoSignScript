@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 retryTime = 1 * 60 * 60
 signURL = 'http://ims.aiit.edu.cn/signMobile/saveSign.do'  # 打卡post请求
-loginURL = 'https://in.aiit.edu.cn/uaac-server/login'  # 登录
+loginURL = 'https://in.aiit.edu.cn/uaac-server/login'  # 登录 TODO 只要获取token即可
 
 
 def main():
@@ -68,6 +68,12 @@ def get_ranking(json_str):
     return str(ranking)
 
 
+def get_flag(json_str):
+    data = json.loads(json_str)
+    ranking = data['flag']
+    return ranking == True
+
+
 def doCore(session):
     try:
         core(session)
@@ -81,7 +87,7 @@ def doCore(session):
 def core(session):
     # 设置要发送的表单数据
     data = {
-        'access_token': '76c8bb52-f91b-47d1-bb2b-7bb1be0bc71d',
+        'access_token': 'ab7e1334-5bd4-46c2-9b6b-e14ccdc72539',
         '_userCode': username
     }
 
@@ -98,8 +104,12 @@ def core(session):
     response = session.post(signURL, headers=headers, data=data, verify=False)
 
     if response.status_code == 200:
-        logger.info("%s ------ 打卡成功，第%s名", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                    get_ranking(response.text))
+        if get_flag(response.text):
+            logger.info("%s ------ 打卡成功，第%s名", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                        get_ranking(response.text))
+        else:
+            logger.info("%s ------ 打卡失败", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                        response.text)
     else:
         logger.error("打卡失败，状态码: %d", response.status_code)
         logger.error("错误信息: %s", response.text)
