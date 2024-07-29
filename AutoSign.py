@@ -2,6 +2,7 @@ import argparse
 import json
 import time
 import requests
+from transformers import CLIPModel
 from apscheduler.schedulers.blocking import BlockingScheduler
 import logging
 
@@ -97,8 +98,8 @@ def core(session):
         # 'Host': 'ims.aiit.edu.cn',
         # 'Connection': 'Keep-Alive',
         # 'Accept-Encoding': 'gzip',
-        # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-        #               'Chrome/126.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/126.0.0.0 Safari/537.36'
     }
 
     response = session.post(signURL, headers=headers, data=data, verify=False)
@@ -127,6 +128,9 @@ def parse_args():
 
 
 if __name__ == '__main__':
+
+
+    model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14", from_tf=True)
     args = parse_args()
     username = args.u
     password = args.p
