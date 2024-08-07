@@ -47,7 +47,7 @@ def core(tokenData):
                       'Chrome/126.0.0.0 Safari/537.36'
     }
 
-    response = requests.post(signURL, headers=headers, data=data, verify=False, timeout=100)
+    response = requests.post(signURL, headers=headers, data=data, verify=False)
 
     if response.status_code == 200:
         respData = json.loads(response.text)

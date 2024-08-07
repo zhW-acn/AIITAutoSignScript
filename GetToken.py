@@ -22,7 +22,7 @@ def get_token(userCode, password):
     }
 
     try:
-        response = requests.post(token_URL, headers=headers, data=request_data, verify=False, timeout=100)
+        response = requests.post(token_URL, headers=headers, data=request_data, verify=False)
         if response.status_code == 200:
             respData = json.loads(response.text)
             if respData['flag']:
