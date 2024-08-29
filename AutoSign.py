@@ -12,6 +12,7 @@ import logging
 #
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+import base64
 #
 #
 # def main():
@@ -82,7 +83,4 @@ if __name__ == '__main__':
     hour = args.hour
     minute = args.minute
     counter = 0
-    for char in password:
-        logger.info(char)
-        print()  # 打印换行符
-
+    print(base64.b64encode(password.encode("utf-8")).decode("utf-8"))
