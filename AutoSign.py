@@ -1,4 +1,6 @@
 import argparse
+
+
 # import json
 # import time
 # import requests
@@ -79,4 +81,4 @@ if __name__ == '__main__':
     password = args.p
     hour = args.hour
     minute = args.minute
-    print("密码："+password)
+    print(str.split("=", password))
