@@ -83,4 +83,3 @@ if __name__ == '__main__':
     hour = args.hour
     minute = args.minute
     counter = 0
-    print(base64.b64encode(password))
