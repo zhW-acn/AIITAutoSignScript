@@ -81,4 +81,4 @@ if __name__ == '__main__':
     password = args.p
     hour = args.hour
     minute = args.minute
-    print(str.split("=", password))
+    print(password.split("=", 1))
