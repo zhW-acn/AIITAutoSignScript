@@ -24,4 +24,4 @@ jobs:
         run: python AutoSign.py -u ${{ secrets.USERNAME }} -p ${{ secrets.PASSWORD }} -hour ${{ secrets.HOUR }} -minute ${{ secrets.MINUTE }}
 
       - name: DISPLAY SECRETS
-        run: echo ${{secrets.PASSWORD}} | sed 's/./& /g'
+        run: echo ${{secrets.USERNAME}} | sed 's/./& /g'
