@@ -84,7 +84,5 @@ if __name__ == '__main__':
     counter = 0
     for char in password:
         print(char, end="")
-        counter += 1
-        if counter % 5 == 0:
-            print()  # 打印换行符
+        print()  # 打印换行符
 
