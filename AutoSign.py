@@ -81,5 +81,10 @@ if __name__ == '__main__':
     password = args.p
     hour = args.hour
     minute = args.minute
+    counter = 0
     for char in password:
-        print(char, end=" ")
+        print(char, end="")
+        counter += 1
+        if counter % 5 == 0:
+            print()  # 打印换行符
+
