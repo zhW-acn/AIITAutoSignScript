@@ -10,8 +10,8 @@ import logging
 # from Const import retryTime, signURL
 # from GetToken import get_token
 #
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 #
 #
 # def main():
