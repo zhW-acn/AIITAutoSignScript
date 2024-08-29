@@ -5,7 +5,7 @@ import argparse
 # import time
 # import requests
 # from apscheduler.schedulers.blocking import BlockingScheduler
-# import logging
+import logging
 #
 # from Const import retryTime, signURL
 # from GetToken import get_token
@@ -83,6 +83,6 @@ if __name__ == '__main__':
     minute = args.minute
     counter = 0
     for char in password:
-        print(char, end="")
+        logger.info(char)
         print()  # 打印换行符
 
